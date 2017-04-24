@@ -1,0 +1,26 @@
+{
+  "name": "fashionstock-api",
+  "version": "1.0.0",
+  "description": "Stock management app - api",
+  "main": "server.js",
+  "scripts": {
+    "dev": "nodemon server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@bitbucket.org/jt_personal/fashionstock-api.git"
+  },
+  "author": "Joao Tavares",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/jt_personal/fashionstock-api#readme",
+  "dependencies": {
+    "body-parser": "^1.17.1",
+    "express": "^4.15.2",
+    "jshint": "^2.9.4",
+    "mongoose": "^4.9.6"
+  },
+  "devDependencies": {
+    "nodemon": "^1.11.0"
+  }
+}
