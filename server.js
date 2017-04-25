@@ -39,79 +39,113 @@ router.use((req, res, next) => {
 router.route('/suppliers')
     .post((req, res) => {
         var supplier = new Supplier();
-        var listSuppliers = [];
-        var existFlag = false;
 
         if(!req.body.name){
             var noname = {
                 message: 'Supplier must have a name',
                 result: false
             };
-            res.send(noname);
+            res.json(noname);
             fs.appendFile(serverlog, 'Error: ' + JSON.stringify(noname));
         }
 
-        Supplier.find((err, lsuppliers) => {
+        Supplier.find( (err, lsuppliers) => {
             if(err)
                 res.send(err);
-        });
 
-        console.log(listSuppliers);
-
-        for (var i = 0; i < listSuppliers.length; i++) {
-            var sup = array[i];
-            if(req.body.name == sup.name){
-                existFlag = true;
+            for (var i = 0; i < lsuppliers.length; i++) {
+                var aux = lsuppliers[i];
+                if(req.body.name == aux.name){
+                    var existingSup = {
+                        message: 'Supplier already exist! Supplier name must be unique!',
+                        result: false
+                    };
+                    res.json(existingSup);
+                    fs.appendFile(serverlog, 'Error: ' + JSON.stringify(existingSup));
+                    return;
+                }
             }
-        }
-
-        if (existFlag) {
-            var existingSup = {
-                message: 'Supplier already exist!',
-                result: false
-            };
-            res.send(existingSup);
-            fs.appendFile(serverlog, 'Error: ' + JSON.stringify(existingSup));
-
-        } else {
             supplier.name = req.body.name;
             supplier.email = req.body.email;
             supplier.telephone = req.body.telephone;
             supplier.address = req.body.address;
+            supplier.city = req.body.city;
             supplier.country = req.body.country;
             supplier.created_on = new Date();
             supplier.lastUpdate = supplier.created_on;
 
             supplier.save((err) => {
-                if(err)
+                if(err){
                     res.send(err);
                     fs.appendFile(serverlog, err);
+                }
 
                 fs.appendFile(serverlog, `Supplier ${supplier.name} created!`);
                 res.send({message: `Supplier ${supplier.name} created!`});
 
             });
-        }
+        });
     })
 
     .get((req, res) => {
         Supplier.find((err, suppliers) => {
-            if(err)
+            if(err){
                 res.send(err);
-
+                fs.appendFile(serverlog, err);
+            }
             res.json(suppliers);
         });
     });
 
 router.route('/suppliers/:supplier_id')
     .get((req, res) => {
-        console.log('ID:', req.params.supplier_id);
         Supplier.findById(req.params.supplier_id, (err, supplier) => {
             if(err){
                 res.send(err);
+                fs.appendFile(serverlog, err);
             }
             res.json(supplier);
         });
+    })
+
+    .put((req, res) => {
+        Supplier.findById(req.params.supplier_id, (err, supplier) => {
+            if(err){
+                res.send(err);
+                fs.appendFile(serverlog, err);
+            }
+            
+            supplier.name = req.body.name;
+            supplier.email = req.body.email;
+            supplier.telephone = req.body.telephone;
+            supplier.address = req.body.address;
+            supplier.city = req.body.city;
+            supplier.country = req.body.country;
+            supplier.lastUpdate = new Date();
+
+            supplier.save((err) => {
+                if(err){
+                    res.send(err);
+                    fs.appendFile(serverlog, err);
+                }
+
+                fs.appendFile(serverlog, `Supplier ${supplier.name} updated!`);
+                res.send({message: `Supplier ${supplier.name} updated!`});
+
+            });
+        });
+    })
+
+    .delete((req, res) => {
+        Supplier.remove({
+            _id: req.params.supplier_id
+        }, (err, supplier) => {
+            if(err){
+                res.send(err);
+                fs.appendFile(serverlog, err);
+            }
+            res.json({message: 'Successfully deleted!'});
+        })
     });
 
 // REGISTER ROUTES - All routes will prefixed with API

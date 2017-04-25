@@ -7,6 +7,7 @@ var SupplierSchema = new Schema({
     email: String,
     telephone: String,
     address: String,
+    city: String,
     country: String,
     created_on: Date,
     lastUpdate: Date
