@@ -8,6 +8,10 @@ var SupplierSchema = new Schema({
         required: true,
         unique: true
     },
+    active: {
+        type: Boolean,
+        required: true
+    },
     email: String,
     telephone: String,
     address: String,

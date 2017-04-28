@@ -19,7 +19,7 @@ mongoose.connect(mongoIdentity.mongoURI);
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
-var Supplier = require('./app/models/suppliers');
+//var Supplier = require('./app/models/suppliers');
 
 var port = process.env.PORT || 8080;
 
@@ -36,7 +36,7 @@ router.use((req, res, next) => {
     next();
 });
 
-require('./app/routes')(router, Supplier, serverlog);
+require('./app/routes')(router, serverlog);
 
 
 // REGISTER ROUTES - All routes will prefixed with API

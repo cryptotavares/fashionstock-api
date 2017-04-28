@@ -1,13 +1,14 @@
 var fs = require('fs');
 var Supplier = require('../models/suppliers');
 
-module.exports = function(router, Supplier, serverlog){
+module.exports = function(router, serverlog){
 
 router.route('/suppliers')
     .post((req, res) => {
         var supplier = new Supplier();
 
         supplier.name = req.body.name;
+        supplier.active = true;
         supplier.email = req.body.email;
         supplier.telephone = req.body.telephone;
         supplier.address = req.body.address;
@@ -34,7 +35,7 @@ router.route('/suppliers')
                 fs.appendFile(serverlog, `${err}\n`);
             } else {
                 res.json(suppliers);
-                fs.appendFile(serverlog,`List of suppliers: ${supplier}\n`)
+                fs.appendFile(serverlog,`List of suppliers: ${suppliers}\n`);
             }
         });
     });
@@ -59,6 +60,7 @@ router.route('/suppliers/:supplier_id')
                 fs.appendFile(serverlog, `${err}\n`);
             } else {
                 supplier.name = req.body.name;
+                supplier.active = true;
                 supplier.email = req.body.email;
                 supplier.telephone = req.body.telephone;
                 supplier.address = req.body.address;
