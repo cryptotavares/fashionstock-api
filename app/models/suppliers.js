@@ -3,7 +3,11 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var SupplierSchema = new Schema({
-    name: String,
+    name: {
+        type: String,
+        required: true,
+        unique: true
+    },
     email: String,
     telephone: String,
     address: String,
