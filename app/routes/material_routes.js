@@ -17,6 +17,8 @@ router.route('/materials')
                 material.supplier_id = req.body.supplier_id;
                 material.cost = req.body.cost;
                 material.reference = req.body.reference;
+                material.stock = req.body.stock;
+                material.stock_unit = req.body.stock_unit;
                 material.details = req.body.details;
                 material.created_on = new Date();
                 material.lastUpdate = material.created_on;
@@ -77,6 +79,8 @@ router.route('/materials/:material_id')
                         material.supplier_id = req.body.supplier_id;
                         material.cost = req.body.cost;
                         material.reference = req.body.reference;
+                        material.stock = req.body.stock;
+                        material.stock_unit = req.body.stock_unit;
                         material.details = req.body.details;
                         material.lastUpdate = new Date();
 
@@ -97,6 +101,8 @@ router.route('/materials/:material_id')
                 material.supplier_id = req.body.supplier_id;
                 material.cost = req.body.cost;
                 material.reference = req.body.reference;
+                material.stock = req.body.stock;
+                material.stock_unit = req.body.stock_unit;
                 material.details = req.body.details;
                 material.lastUpdate = new Date();
 

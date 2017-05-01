@@ -15,6 +15,8 @@ var MaterialSchema = new Schema({
     cost: String,
     reference: String,
     details: String,
+    stock: Number,
+    stock_unit: String,
     created_on: Date,
     lastUpdate: Date
 });
