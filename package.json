@@ -16,8 +16,10 @@
   "homepage": "https://bitbucket.org/jt_personal/fashionstock-api#readme",
   "dependencies": {
     "body-parser": "^1.17.1",
+    "crypto": "0.0.3",
     "express": "^4.15.2",
     "jshint": "^2.9.4",
+    "jsonwebtoken": "^7.4.0",
     "mongoose": "^4.9.6"
   },
   "devDependencies": {

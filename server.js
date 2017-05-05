@@ -5,16 +5,17 @@ var fs = require('fs');
 var express = require('express');
 var app = express();
 
+var jwt = require('jsonwebtoken');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 
-var mongoIdentity = require('./constants.js');
+var config = require('./constants');
 
 var serverlog = 'server.log';
 
 //connect to mongoDB
 mongoose.Promise = global.Promise;
-mongoose.connect(mongoIdentity.mongoURI);
+mongoose.connect(config.mongoURI);
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
