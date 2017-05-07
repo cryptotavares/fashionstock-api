@@ -3,29 +3,40 @@ var Supplier = require('../models/suppliers');
 
 module.exports = function(router, serverlog){
 
+var createSupplier = function(req, res, supplier, iscreate){
+    var messageLog = '';
+    supplier.name = req.body.name;
+    supplier.email = req.body.email;
+    supplier.telephone = req.body.telephone;
+    supplier.address = req.body.address;
+    supplier.city = req.body.city;
+    supplier.country = req.body.country;
+    if(iscreate){
+        supplier.active = true;
+        messageLog = `Supplier ${supplier.name} created!\n`;
+        supplier.created_on = new Date();
+        supplier.lastUpdate = supplier.created_on;
+    } else {
+        supplier.active = req.body.active;
+        messageLog = `Supplier ${supplier.name} updated!\n`;
+        supplier.lastUpdate = new Date();
+    }
+    supplier.save((err) => {
+        if(err){
+            res.send(err);
+            fs.appendFile(serverlog, `${err}\n`);
+        } else {
+            fs.appendFile(serverlog, messageLog);
+            res.send({message: messageLog});
+        }
+    });
+};
+
 router.route('/suppliers')
     .post((req, res) => {
         var supplier = new Supplier();
-
-        supplier.name = req.body.name;
-        supplier.active = true;
-        supplier.email = req.body.email;
-        supplier.telephone = req.body.telephone;
-        supplier.address = req.body.address;
-        supplier.city = req.body.city;
-        supplier.country = req.body.country;
-        supplier.created_on = new Date();
-        supplier.lastUpdate = supplier.created_on;
-
-        supplier.save((err) => {
-            if(err){
-                res.send(err);
-                fs.appendFile(serverlog, `${err}\n`);
-            } else {
-                fs.appendFile(serverlog, `Supplier ${supplier.name} created!\n`);
-                res.send({message: `Supplier ${supplier.name} created!`});
-            }
-        });
+        var iscreate = true;
+        createSupplier(req, res, supplier, iscreate);
     })
 
     .get((req, res) => {
@@ -54,29 +65,13 @@ router.route('/suppliers/:supplier_id')
     })
 
     .put((req, res) => {
+        var iscreate = false;
         Supplier.findById(req.params.supplier_id, (err, supplier) => {
             if(err){
                 res.send(err);
                 fs.appendFile(serverlog, `${err}\n`);
             } else {
-                supplier.name = req.body.name;
-                supplier.active = true;
-                supplier.email = req.body.email;
-                supplier.telephone = req.body.telephone;
-                supplier.address = req.body.address;
-                supplier.city = req.body.city;
-                supplier.country = req.body.country;
-                supplier.lastUpdate = new Date();
-
-                supplier.save((err) => {
-                    if(err){
-                        res.send(err);
-                        fs.appendFile(serverlog, `${err}\n`);
-                    } else {
-                        fs.appendFile(serverlog, `Supplier ${supplier.name} updated!\n`);
-                        res.send({message: `Supplier ${supplier.name} updated!`});
-                    }
-                });
+                createSupplier(req, res, supplier, iscreate);
             }
         });
     })

@@ -13,6 +13,10 @@ var ProductSchema = new Schema({
     size: String,
     prod_time: String,
     description: String,
+    user_id: {
+        type: String,
+        required: true
+    },
     materials: [{
         material_id: String,
         quantity: Number

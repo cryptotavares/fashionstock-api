@@ -4,36 +4,46 @@ var Supplier = require('../models/suppliers');
 
 module.exports = function(router, serverlog){
 
+var createMaterial = function(req, res, material, iscreate){
+    var messageLog = '';
+    Supplier.findById(req.body.supplier_id, (err, supplier) => {
+        if(err){
+            res.send(err);
+            fs.appendFile(serverlog, `${err}\n`);
+        } else {
+            material.name = req.body.name;
+            material.supplier_id = req.body.supplier_id;
+            material.cost = req.body.cost;
+            material.reference = req.body.reference;
+            material.stock = req.body.stock;
+            material.stock_unit = req.body.stock_unit;
+            material.details = req.body.details;
+            if(iscreate){
+                messageLog =`Material ${material.name} created!\n`;
+                material.created_on = new Date();
+                material.lastUpdate = material.created_on;
+            } else {
+                messageLog = `Material ${material.name} updated!`;
+                material.lastUpdate = new Date();
+            }
+            material.save((err) => {
+                if(err){
+                    res.send(err);
+                    fs.appendFile(serverlog, `${err}\n`);
+                } else {
+                    fs.appendFile(serverlog, messageLog);
+                    res.send({message: messageLog});
+                }
+            });
+        }
+    });
+};
+
 router.route('/materials')
     .post((req, res) => {
         var material = new Material();
-
-        Supplier.findById(req.body.supplier_id, (err, supplier) => {
-            if(err){
-                res.send(err);
-                fs.appendFile(serverlog, `${err}\n`);
-            } else {
-                material.name = req.body.name;
-                material.supplier_id = req.body.supplier_id;
-                material.cost = req.body.cost;
-                material.reference = req.body.reference;
-                material.stock = req.body.stock;
-                material.stock_unit = req.body.stock_unit;
-                material.details = req.body.details;
-                material.created_on = new Date();
-                material.lastUpdate = material.created_on;
-
-                material.save((err) => {
-                    if(err){
-                        res.send(err);
-                        fs.appendFile(serverlog, `${err}\n`);
-                    } else {
-                        fs.appendFile(serverlog, `Material ${material.name} created!\n`);
-                        res.send({message: `Material ${material.name} created!`});
-                    }
-                });
-            }
-        });
+        var iscreate = true;
+        createMaterial(req, res, material, iscreate);
     })
 
     .get((req, res) => {
@@ -62,59 +72,13 @@ router.route('/materials/:material_id')
     })
 
     .put((req, res) => {
+        var iscreate = false;
         Material.findById(req.params.material_id, (err, material) => {
             if(err){
                 res.send(err);
                 fs.appendFile(serverlog, `${err}\n`);
             } else {
-
-                if(material.supplier_id != req.body.supplier_id){
-                    Supplier.findById(req.body.supplier_id, (err, supplier) => {
-                        if(err){
-                            res.send(err);
-                            fs.appendFile(serverlog, err);
-                            return;
-                        }
-                        material.name = req.body.name;
-                        material.supplier_id = req.body.supplier_id;
-                        material.cost = req.body.cost;
-                        material.reference = req.body.reference;
-                        material.stock = req.body.stock;
-                        material.stock_unit = req.body.stock_unit;
-                        material.details = req.body.details;
-                        material.lastUpdate = new Date();
-
-                        material.save((err) => {
-                            if(err){
-                                res.send(err);
-                                fs.appendFile(serverlog, `${err}\n`);
-                            } else {
-                                fs.appendFile(serverlog, `Material ${material.name} updated!\n`);
-                                res.send({message: `Material ${material.name} updated!`});
-                            }
-                        });
-
-                    });
-                    return;
-                }
-                material.name = req.body.name;
-                material.supplier_id = req.body.supplier_id;
-                material.cost = req.body.cost;
-                material.reference = req.body.reference;
-                material.stock = req.body.stock;
-                material.stock_unit = req.body.stock_unit;
-                material.details = req.body.details;
-                material.lastUpdate = new Date();
-
-                material.save((err) => {
-                    if(err){
-                        res.send(err);
-                        fs.appendFile(serverlog, `${err}\n`);
-                    } else {
-                        fs.appendFile(serverlog, `Material ${material.name} updated!\n`);
-                        res.send({message: `Material ${material.name} updated!`});
-                    }
-                });
+                createMaterial(req, res, material, iscreate);
             }
         });
     })

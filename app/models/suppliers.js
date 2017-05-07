@@ -12,6 +12,10 @@ var SupplierSchema = new Schema({
         type: Boolean,
         required: true
     },
+    user_id: {
+        type: String,
+        required: true
+    },
     email: String,
     telephone: String,
     address: String,
