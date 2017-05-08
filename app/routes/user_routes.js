@@ -6,11 +6,17 @@ router.route('/user')
     .get((req, res) => {
         User.find((err, users) => {
             if(err){
-                res.send(err);
+                res.status(500).json({
+                    success: false,
+                    error: err
+                });
                 fs.appendFile(serverlog, `${err}\n`);
             } else {
                 fs.appendFile(serverlog,`${users}\n`);
-                res.status(200).json(users);
+                res.status(200).json({
+                    success: true,
+                    results: users
+                });
             }
         });
     });

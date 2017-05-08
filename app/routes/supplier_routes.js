@@ -23,11 +23,17 @@ var createSupplier = function(req, res, supplier, iscreate){
     }
     supplier.save((err) => {
         if(err){
-            res.send(err);
+            res.status(500).json({
+                success: false,
+                error: err
+            });
             fs.appendFile(serverlog, `${err}\n`);
         } else {
             fs.appendFile(serverlog, messageLog);
-            res.send({message: messageLog});
+            res.status(200).json({
+                success: true,
+                message: messageLog
+            });
         }
     });
 };
@@ -42,10 +48,16 @@ router.route('/suppliers')
     .get((req, res) => {
         Supplier.find((err, suppliers) => {
             if(err){
-                res.send(err);
+                res.status(500).json({
+                    success: false,
+                    error: err
+                });
                 fs.appendFile(serverlog, `${err}\n`);
             } else {
-                res.json(suppliers);
+                res.status(200).json({
+                    success: true,
+                    results: suppliers
+                });
                 fs.appendFile(serverlog,`List of suppliers: ${suppliers}\n`);
             }
         });
@@ -55,11 +67,25 @@ router.route('/suppliers/:supplier_id')
     .get((req, res) => {
         Supplier.findById(req.params.supplier_id, (err, supplier) => {
             if(err){
-                res.send(err);
+                res.status(500).json({
+                    success: false,
+                    error: err
+                });
                 fs.appendFile(serverlog, `${err}\n`);
             } else {
+                if(!supplier){
+                    res.status(404).json({
+                        success: false,
+                        message: 'Supplier not found.'
+                    });
+                    fs.appendFile(serverlog,`${supplier}\n`);
+                    return;
+                }
                 fs.appendFile(serverlog,`${supplier}\n`);
-                res.json(supplier);
+                res.status(200).json({
+                    success: true,
+                    results: supplier
+                });
             }
         });
     })
@@ -68,9 +94,20 @@ router.route('/suppliers/:supplier_id')
         var iscreate = false;
         Supplier.findById(req.params.supplier_id, (err, supplier) => {
             if(err){
-                res.send(err);
+                res.status(500).json({
+                    success: false,
+                    error: err
+                });
                 fs.appendFile(serverlog, `${err}\n`);
             } else {
+                if(!supplier){
+                    res.status(404).json({
+                        success: false,
+                        message: 'Supplier not found.'
+                    });
+                    fs.appendFile(serverlog,`${supplier}\n`);
+                    return;
+                }
                 createSupplier(req, res, supplier, iscreate);
             }
         });
@@ -81,10 +118,16 @@ router.route('/suppliers/:supplier_id')
             _id: req.params.supplier_id
         }, (err, supplier) => {
             if(err){
-                res.send(err);
+                res.status(500).json({
+                    success: false,
+                    error: err
+                });
                 fs.appendFile(serverlog, `${err}\n`);
             } else {
-                res.json({message: 'Successfully deleted!'});
+                res.status(200).json({
+                    success: true,
+                    message: 'Successfully deleted!'
+                });
                 fs.appendFile(serverlog,`Supplier successfully deleted!`);
             }
         });

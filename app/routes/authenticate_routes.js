@@ -22,11 +22,17 @@ router.route('/signup')
 
         user.save((err) => {
             if(err){
-                res.send(err);
+                res.status(500).json({
+                    success: false,
+                    error: err
+                });
                 fs.appendFile(serverlog,`${err}\n`);
             } else {
                 fs.appendFile(serverlog, `User ${user.name} created!\n`);
-                res.status(200).json({message: `User ${user.name} created!`});
+                res.status(200).json({
+                    success: true,
+                    message: `User ${user.name} created!`
+                });
             }
         });
     });
@@ -35,12 +41,18 @@ router.route('/signin')
     .post( (req, res) => {
         User.findOne({name: req.body.name}, (err, user) => {
             if(err){
-                res.send(err);
+                res.status(500).json({
+                    success: false,
+                    error: err
+                });
                 fs.appendFile(serverlog,`${err}\n`);
                 return;
             }
             if(!user){
-                res.status(404).json({success: false, message: 'Authentication failed! User not found.'});
+                res.status(404).json({
+                    success: false,
+                    message: 'Authentication failed! User not found.'
+                });
             } else if(user) {
 
                 var passwordData = hashpwd.sha512(req.body.password, user.salt);
@@ -48,7 +60,10 @@ router.route('/signin')
                 console.log('USER PASSWORD:', user.password);
                 
                 if(user.password != passwordData.passwordHash){
-                    res.status(404).json({success: false, message: 'Authentication failed! Wrong password.'});
+                    res.status(404).json({
+                        success: false,
+                        message: 'Authentication failed! Wrong password.'
+                    });
                 } else {
                     var token =jwt.sign(user, config.jwtsecret, {
                         expiresIn: "30d"
@@ -57,7 +72,10 @@ router.route('/signin')
                     user.token = token;
                     user.save((err) => {
                         if(err){
-                            res.send(err);
+                            res.status(500).json({
+                                success: false,
+                                error: err
+                            });
                             fs.appendFile(serverlog, `${err}\n`);
                             return;
                         } else {

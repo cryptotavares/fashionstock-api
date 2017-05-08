@@ -22,12 +22,18 @@ var createProduct = function(req, res, iscreate, product){
     }
     Material.find().where('_id').in(materialIds).exec((err, materials) => {
         if(err){
-            res.send(err);
+            res.status(500).json({
+                success: false,
+                error: err
+            });
             fs.appendFile(serverlog, `${err}\n`);
             return;
         }
         if(materials.length <= 0){
-            res.send(logSentence);
+            res.status(404).json({
+                success: false,
+                message: logSentence
+            });
             fs.appendFile(serverlog, logSentence);
             return;
         }
@@ -51,7 +57,10 @@ var createProduct = function(req, res, iscreate, product){
                     } else {
                         materials[m_aux].stock = materials[m_aux].stock - req.body.materials[m_req].quantity * pstockQuantity;
                         if(materials[m_aux].stock < 0){
-                            res.send('There are not enough materials in stock!');
+                            res.status(200).json({
+                                success: false,
+                                message: 'There are not enough materials in stock!'
+                            });
                             fs.appendFile(serverlog, 'There are not enough materials in stock!\n');
                             m_aux=materials.length;
                             m_req=materialIds.length;
@@ -75,7 +84,10 @@ var createProduct = function(req, res, iscreate, product){
 var newProduct = function (errors, req, res, product, iscreate){
     var messageLog = '';
     if(errors.length !== 0){
-        res.send(errors);
+        res.status(500).json({
+            success: false,
+            error: errors
+        });
         fs.appendFile(serverlog, `${errors}\n`);
     } else {
         product.name = req.body.name;
@@ -97,11 +109,17 @@ var newProduct = function (errors, req, res, product, iscreate){
 
         product.save((err) => {
             if(err){
-                res.send(err);
+                res.status(500).json({
+                    success: false,
+                    error: err
+                });
                 fs.appendFile(serverlog, `${err}\n`);
             } else {
                 fs.appendFile(serverlog, messageLog + `\n`);
-                res.send({message: messageLog});
+                res.status(200).json({
+                    success: true,
+                    message: messageLog
+                });
             }
         });
     }
@@ -117,10 +135,16 @@ router.route('/products')
     .get((req, res) => {
         Product.find((err, products) => {
             if(err){
-                res.send(err);
+                res.status(500).json({
+                    success: false,
+                    error: err
+                });
                 fs.appendFile(serverlog, `${err}\n`);
             } else {
-                res.json(products);
+                res.status(200).json({
+                    success: true,
+                    results: products
+                });
                 fs.appendFile(serverlog,`List of products: ${products}\n`);
             }
         });
@@ -130,11 +154,25 @@ router.route('/products/:product_id')
     .get((req, res) => {
         Product.findById(req.params.product_id, (err, product) => {
             if(err){
-                res.send(err);
+                res.status(500).json({
+                    success: false,
+                    error: err
+                });
                 fs.appendFile(serverlog, `${err}\n`);
             } else {
+                if(!product){
+                    res.status(404).json({
+                        success: false,
+                        message: 'Product not found.'
+                    });
+                    fs.appendFile(serverlog,`${product}\n`);
+                    return;
+                }
                 fs.appendFile(serverlog,`${product}\n`);
-                res.json(product);
+                res.status(200).json({
+                    success: true,
+                    results: product
+                });
             }
         });
     })
@@ -143,9 +181,20 @@ router.route('/products/:product_id')
         var iscreate = false;
         Product.findById(req.params.product_id, (err, product) => {
             if(err){
-                res.send(err);
+                res.status(500).json({
+                    success: false,
+                    error: err
+                });
                 fs.appendFile(serverlog, `${err}\n`);
             } else {
+                if(!product){
+                    res.status(404).json({
+                        success: false,
+                        message: 'Product not found.'
+                    });
+                    fs.appendFile(serverlog,`${product}\n`);
+                    return;
+                }
                 createProduct(req, res, iscreate, product);
             }
         });
@@ -156,10 +205,16 @@ router.route('/products/:product_id')
             _id: req.params.product_id
         }, (err, product) => {
             if(err){
-                res.send(err);
+                res.status(500).json({
+                    success: false,
+                    error: err
+                });
                 fs.appendFile(serverlog, `${err}\n`);
             } else {
-                res.json({message: 'Successfully deleted!'});
+                res.status(200).json({
+                    success: true,
+                    message: 'Successfully deleted!'
+                });
                 fs.appendFile(serverlog,`Product successfully deleted!`);
             }
         });
