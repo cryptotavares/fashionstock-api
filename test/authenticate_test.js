@@ -10,6 +10,7 @@ let should = chai.should();
 chai.use(chaiHttp);
 
 var token = '';
+var users = [];
 
 describe('/POST signup', () => {
     it('it should create a user', (done) => {
@@ -54,4 +55,33 @@ describe('/POST signin', () => {
     });
 });
 
-console.log(token);
+describe('/GET user', () => {
+    it('it should not return the list of users since no token was sent', (done) => {
+        chai.request(server)
+            .get('/api/user')
+            .end((err, res) => {
+                res.should.have.status(403);
+                res.body.should.be.a('object');
+                res.body.should.have.property('success');
+                res.body.should.have.property('message').eql(`No token provided!`);
+                done();
+            });
+    });
+
+    it('it should get the list of users', (done) => {
+        chai.request(server)
+            .get('/api/user')
+            .set('x-access-token', token)
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a('object');
+                res.body.should.have.property('success');
+                res.body.should.have.property('success').eql(true);
+                res.body.should.have.property('results');
+                res.body.results.should.be.a('array');
+                users = res.body.results;
+                done();
+            });
+    });
+});
+
