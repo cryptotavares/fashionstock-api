@@ -56,9 +56,7 @@ router.route('/signin')
             } else if(user) {
 
                 var passwordData = hashpwd.sha512(req.body.password, user.salt);
-                console.log('PASSWORD AUTH:', passwordData.passwordHash);
-                console.log('USER PASSWORD:', user.password);
-                
+
                 if(user.password != passwordData.passwordHash){
                     res.status(404).json({
                         success: false,
