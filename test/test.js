@@ -11,6 +11,7 @@ chai.use(chaiHttp);
 
 var token = '';
 
+// SIGNUP & SIGNINTESTS
 describe('/POST signup', () => {
     it('it should create a user', (done) => {
         let user = {
@@ -24,7 +25,7 @@ describe('/POST signup', () => {
             .end((err, res) => {
                 res.should.have.status(200);
                 res.body.should.be.a('object');
-                res.body.should.have.property('success');
+                res.body.should.have.property('success').eql(true);
                 res.body.should.have.property('message').eql(`User ${user.name} created!`);
                 done();
             });
@@ -44,7 +45,7 @@ describe('/POST signin', () => {
             .end((err, res) => {
                 res.should.have.status(200);
                 res.body.should.be.a('object');
-                res.body.should.have.property('success');
+                res.body.should.have.property('success').eql(true);
                 res.body.should.have.property('token');
                 res.body.should.have.property('message').eql(`Enjoy your token`);
                 token = res.body.token;
@@ -54,6 +55,8 @@ describe('/POST signin', () => {
     });
 });
 
+
+//GET List of Users negative and positive tests
 describe('/GET user', () => {
     it('it should not return the list of users since no token was sent', (done) => {
         chai.request(server)
@@ -61,7 +64,7 @@ describe('/GET user', () => {
             .end((err, res) => {
                 res.should.have.status(403);
                 res.body.should.be.a('object');
-                res.body.should.have.property('success');
+                res.body.should.have.property('success').eql(false);;
                 res.body.should.have.property('message').eql(`No token provided!`);
                 done();
             });
@@ -74,7 +77,6 @@ describe('/GET user', () => {
             .end((err, res) => {
                 res.should.have.status(200);
                 res.body.should.be.a('object');
-                res.body.should.have.property('success');
                 res.body.should.have.property('success').eql(true);
                 res.body.should.have.property('results');
                 res.body.results.should.be.a('array');
@@ -83,6 +85,47 @@ describe('/GET user', () => {
     });
 });
 
+// TEST Suppliers
+describe('Suppliers', () => {
+    it('it should create a new supplier', (done) => {
+        let supplier = {
+            name: 'TestSupplier',
+            email: 'testsupplier@supplier.com',
+            telephone: '217159952',
+            address: 'Rua Professor Braço de Prata',
+            city: 'Lisboa',
+            country: 'Portugal'
+        };
+        chai.request(server)
+            .post('/api/suppliers')
+            .set('x-access-token', token)
+            .send(supplier)
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a('object');
+                res.body.should.have.property('success').eql(true);
+                res.body.should.have.property('message').eql(`Supplier ${supplier.name} created!\n`);
+                done();
+            });
+    });
+
+    it('it should get the list of suppliers', (done) => {
+        chai.request(server)
+            .get('/api/suppliers')
+            .set('x-access-token', token)
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a('object');
+                res.body.should.have.property('success').eql(true);
+                res.body.should.have.property('results');
+                res.body.results.should.be.a('array');
+                done();
+            });
+    });
+});
+
+
+//DELETE test user
 describe('/DELETE User', () => {
     it('it should delete the user created for tests', (done) => {
         chai.request(server)

@@ -11,6 +11,7 @@ var createSupplier = function(req, res, supplier, iscreate){
     supplier.address = req.body.address;
     supplier.city = req.body.city;
     supplier.country = req.body.country;
+    supplier.user_id = req.decoded._doc._id;
     if(iscreate){
         supplier.active = true;
         messageLog = `Supplier ${supplier.name} created!\n`;
@@ -46,7 +47,7 @@ router.route('/suppliers')
     })
 
     .get((req, res) => {
-        Supplier.find((err, suppliers) => {
+        Supplier.find().where('user_id').in(req.decoded._doc._id).exec((err, suppliers) => {
             if(err){
                 res.status(500).json({
                     success: false,
