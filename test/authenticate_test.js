@@ -10,7 +10,6 @@ let should = chai.should();
 chai.use(chaiHttp);
 
 var token = '';
-var users = [];
 
 describe('/POST signup', () => {
     it('it should create a user', (done) => {
@@ -79,9 +78,23 @@ describe('/GET user', () => {
                 res.body.should.have.property('success').eql(true);
                 res.body.should.have.property('results');
                 res.body.results.should.be.a('array');
-                users = res.body.results;
                 done();
             });
     });
 });
 
+describe('/DELETE User', () => {
+    it('it should delete the user created for tests', (done) => {
+        chai.request(server)
+            .delete('/api/user')
+            .set('x-access-token', token)
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a('object');
+                res.body.should.have.property('success');
+                res.body.should.have.property('success').eql(true);
+                res.body.should.have.property('message').eql(`Successfully deleted!`);
+                done();
+            });
+    });
+});
