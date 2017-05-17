@@ -10,6 +10,8 @@ let should = chai.should();
 chai.use(chaiHttp);
 
 var token = '';
+var supplierList = [];
+var supplierGet = {};
 
 // SIGNUP & SIGNINTESTS
 describe('/POST signup', () => {
@@ -86,7 +88,8 @@ describe('/GET user', () => {
 });
 
 // TEST Suppliers
-describe('Suppliers', () => {
+describe('/POST GET & PUT Suppliers', () => {
+
     it('it should create a new supplier', (done) => {
         let supplier = {
             name: 'TestSupplier',
@@ -119,13 +122,76 @@ describe('Suppliers', () => {
                 res.body.should.have.property('success').eql(true);
                 res.body.should.have.property('results');
                 res.body.results.should.be.a('array');
+                supplierList = res.body.results;
+
+                if(supplierList.length > 1){
+                    for(var i = 0; i < supplierList.length; i++){
+                        if(supplierList[i].name == 'TestSupplier'){
+                            supplierGet = supplierList[i];
+                        }
+                    }
+                } else {
+                    supplierGet = supplierList[0];
+                }
+                done();
+            });
+    });
+
+    it('it should get the TestSupplier by ID', (done) => {
+        chai.request(server)
+            .get('/api/suppliers/' + supplierGet._id)
+            .set('x-access-token', token)
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a('object');
+                res.body.should.have.property('success').eql(true);
+                res.body.should.have.property('results');
+                done();
+            });
+    });
+
+    it('it should update the TestSupplier', (done) => {
+        let updateSupplier = {
+            name: 'TestSupplier2',
+            email: 'testsupplier@supplier.com',
+            telephone: '217159952',
+            address: 'New Street',
+            city: 'Madrid',
+            country: 'Spain',
+            active: true
+        };
+        chai.request(server)
+            .put('/api/suppliers/' + supplierGet._id)
+            .set('x-access-token', token)
+            .send(updateSupplier)
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a('object');
+                res.body.should.have.property('success').eql(true);
+                res.body.should.have.property('message').eql(`Supplier ${updateSupplier.name} updated!\n`);
                 done();
             });
     });
 });
 
+//DELETE TEST Supplier
+describe('/DELETE TEST Supplier', () => {
+    it('it should delete the supplier created for tests', (done) => {
+        chai.request(server)
+            .delete('/api/suppliers/' + supplierGet._id)
+            .set('x-access-token', token)
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a('object');
+                res.body.should.have.property('success');
+                res.body.should.have.property('success').eql(true);
+                res.body.should.have.property('message').eql(`Successfully deleted!`);
+                done();
+            });
+    });
+});
 
-//DELETE test user
+//DELETE TEST user
 describe('/DELETE User', () => {
     it('it should delete the user created for tests', (done) => {
         chai.request(server)
