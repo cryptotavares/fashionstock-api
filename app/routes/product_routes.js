@@ -100,11 +100,11 @@ var newProduct = function (errors, req, res, product, iscreate){
         product.stock = req.body.stock;
         product.user_id = req.decoded._doc._id;
         if(iscreate){
-            messageLog = `Product ${product.name} created!`;
+            messageLog = `Product ${product.name} created!\n`;
             product.created_on = new Date();
             product.lastUpdate = product.created_on;
         } else {
-            messageLog = `Product ${product.name} updated!`;
+            messageLog = `Product ${product.name} updated!\n`;
             product.lastUpdate = new Date();
         }
 
