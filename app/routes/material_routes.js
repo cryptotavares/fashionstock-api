@@ -29,6 +29,7 @@ var createMaterial = function(req, res, material, iscreate){
             material.stock = req.body.stock;
             material.stock_unit = req.body.stock_unit;
             material.details = req.body.details;
+            material.user_id = req.decoded._doc._id;
             if(iscreate){
                 messageLog =`Material ${material.name} created!\n`;
                 material.created_on = new Date();
@@ -64,7 +65,7 @@ router.route('/materials')
     })
 
     .get((req, res) => {
-        Material.find((err, materials) => {
+        Material.find().where('user_id').in(req.decoded._doc._id).exec((err, materials) => {
             if(err){
                 res.status(500).json({
                     success: false,

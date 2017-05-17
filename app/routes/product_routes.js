@@ -98,6 +98,7 @@ var newProduct = function (errors, req, res, product, iscreate){
         product.description = req.body.description;
         product.materials = req.body.materials;
         product.stock = req.body.stock;
+        product.user_id = req.decoded._doc._id;
         if(iscreate){
             messageLog = `Product ${product.name} created!`;
             product.created_on = new Date();
@@ -133,7 +134,7 @@ router.route('/products')
     })
 
     .get((req, res) => {
-        Product.find((err, products) => {
+        Product.find().where('user_id').in(req.decoded._doc._id).exec((err, products) => {
             if(err){
                 res.status(500).json({
                     success: false,

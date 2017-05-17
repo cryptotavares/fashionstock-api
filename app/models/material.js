@@ -12,6 +12,10 @@ var MaterialSchema = new Schema({
         type: String,
         required: true
     },
+    user_id: {
+        type: String,
+        required: true
+    },
     cost: String,
     reference: String,
     details: String,
