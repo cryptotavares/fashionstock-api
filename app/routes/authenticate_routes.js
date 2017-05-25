@@ -116,7 +116,7 @@ router.route('/forgot')
                 });
                 //IMPLEMENT SEND EMAIL WITH LINK ATTACHED
                 var resetUrl = `http://www.fashionstock/forgot/reset?t=${token}`;
-                var resetMessage = `Someone recently requested that the password be reset for ${user.name}\n\n`;
+                var resetMessage = `Someone recently requested that the password be reset for ${user.name}!\n \nThe below link will only be active during the next 2 hours!\n \n`;
                 var fromEmail = new helper.Email('pwdrecovery@fashionstock.io');
                 var toEmail = new helper.Email(user.email);
                 var subject = `FashionStock Password Reset for ${user.name}`;
@@ -141,7 +141,8 @@ router.route('/forgot')
                     fs.appendFile(serverlog, `Password reset email sent for user ${user.name}!\n`);
                     res.status(200).json({
                         success: true,
-                        message: `Password reset email sent for user ${user.name}!\n`
+                        message: `Password reset email sent for user ${user.name}!\n`,
+                        tokenTemp: token
                     });
                 });
             }
