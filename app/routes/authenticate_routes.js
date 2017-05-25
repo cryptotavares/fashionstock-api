@@ -139,7 +139,7 @@ router.route('/forgot')
                     console.log('EMAIL:', response.body);
                     console.log('EMAIL:', response.headers);
                     fs.appendFile(serverlog, `Password reset email sent for user ${user.name}!\n`);
-                    res.status(200).json({
+                    res.status(202).json({
                         success: true,
                         message: `Password reset email sent for user ${user.name}!\n`,
                         tokenTemp: token
@@ -159,7 +159,7 @@ router.route('/forgot/:token')
                     fs.appendFile(serverlog, {success: false, message: 'Failed to authenticate token!'});
                     return;
                 } else {
-                    User.find().where('_id').in(decoded._doc._id).exec( (err, user) => {
+                    User.findOne({_id: decoded._doc._id}, (err, user) => {
                         if(err){
                             res.status(500).json({
                                 success: false,
@@ -181,7 +181,7 @@ router.route('/forgot/:token')
                                     message: 'Password must be different from the last one.'
                                 });
                             } else {
-                                user.password = passwordData;
+                                user.password = passwordData.passwordHash;
                                 user.lastUpdate = new Date();
 
                                 user.save((err) => {
