@@ -15,7 +15,8 @@ var UserSchema = new Schema({
     salt: String,
     email: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     token: String,
     admin: Boolean,
