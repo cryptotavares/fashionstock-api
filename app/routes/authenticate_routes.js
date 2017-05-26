@@ -130,13 +130,10 @@ router.route('/forgot')
                 });
                 sg.API(request, function (err, response) {
                     if (err) {
-                        console.log('Error response received');
                         res.send({success: false, message: 'Failed to send email'});
                         fs.appendFile(serverlog, {success: false, message: 'Failed to send email'});
                         return;
                     }
-                    console.log('EMAIL:', response.statusCode);
-                    console.log('EMAIL:', response.body);
                     console.log('EMAIL:', response.headers);
                     fs.appendFile(serverlog, `Password reset email sent for user ${user.name}!\n`);
                     res.status(202).json({
@@ -192,7 +189,7 @@ router.route('/forgot/:token')
                                         });
                                         fs.appendFile(serverlog,`${err}\n`);
                                     } else {
-                                        fs.appendFile(serverlog, `User ${user.name} password changedsuccessfully!\n`);
+                                        fs.appendFile(serverlog, `User ${user.name} password changed successfully!\n`);
                                         res.status(200).json({
                                             success: true,
                                             message: `User ${user.name} password changed successfully!`
