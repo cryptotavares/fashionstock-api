@@ -19,7 +19,7 @@ router.route('/signup')
         user.password = passwordData.passwordHash;
         user.email = req.body.email;
         user.salt = passwordData.salt;
-        user.admin = true;
+        user.admin = false;
         user.created_on = new Date();
         user.lastUpdate = user.created_on;
 
