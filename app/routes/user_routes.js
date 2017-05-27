@@ -35,7 +35,7 @@ var createUser = function(req, res, user, iscreate){
 
 router.route('/user')
     .get((req, res) => {
-        User.find((err, users) => {
+        User.find().where('_id').in(req.decoded._doc._id).exec((err, users) => {
             if(err){
                 res.status(500).json({
                     success: false,
