@@ -46,7 +46,14 @@ router.route('/user')
                 fs.appendFile(serverlog,`${users}\n`);
                 res.status(200).json({
                     success: true,
-                    results: users
+                    results: {
+                        admin: users[0].admin,
+                        created_on: users[0].created_on,
+                        lastUpdate: users[0].lastUpdate,
+                        email: users[0].email,
+                        name: users[0].name,
+                        _id: users[0]._id
+                    }
                 });
             }
         });

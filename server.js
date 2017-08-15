@@ -8,6 +8,7 @@ var app = express();
 var jwt = require('jsonwebtoken');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
+var cors = require('cors');
 
 var config = require('./constants');
 
@@ -19,6 +20,7 @@ mongoose.connect(config.mongoURI);
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
+app.use(cors());
 
 //var Supplier = require('./app/models/suppliers');
 
@@ -31,6 +33,9 @@ var router = express.Router();
 router.use((req, res, next) => {
     var now = new Date().toDateString();
     var logReq = `${now}: Request ${req.method} ${req.url}\n`;
+
+    //res.header("Access-Control-Allow-Origin", "*");
+    //res.header("Access-Control-Allow-Headers", "Origin, Content-Type, X-Requested-With, Accept");
 
     console.log(logReq);
     fs.appendFile(serverlog, logReq);
