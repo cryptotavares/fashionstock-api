@@ -16,6 +16,9 @@ var materialList = [];
 var materialGet = {};
 var productList = [];
 var productGet = {};
+var userList = [];
+var userGet = {};
+var tempToken = '';
 
 /**********************************************************************************/
 // SIGNUP & SIGNIN TESTS
@@ -24,7 +27,7 @@ describe('/POST signup', () => {
     it('it should create a user', (done) => {
         let user = {
             name: 'TestUser',
-            email: 'testuser@testuser.com',
+            email: 'joaon_tavares@outlook.com',
             password: '12345Test!'
         };
         chai.request(server)
@@ -39,12 +42,31 @@ describe('/POST signup', () => {
             });
 
     });
+
+    it('it should not create a duplicated user', (done) => {
+        let user = {
+            name: 'TestUser',
+            email: 'joaon_tavares@outlook.com',
+            password: '12345Test!'
+        };
+        chai.request(server)
+            .post('/api/signup')
+            .send(user)
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a('object');
+                res.body.should.have.property('success').eql(false);
+                res.body.should.have.property('error');
+                done();
+            });
+
+    });
 });
 
 describe('/POST signin', () => {
     it('it should login a user and get the token', (done) => {
         let user = {
-            name: 'TestUser',
+            email: 'joaon_tavares@outlook.com',
             password: '12345Test!'
         };
         chai.request(server)
@@ -89,6 +111,18 @@ describe('/GET user', () => {
                 res.body.should.have.property('success').eql(true);
                 res.body.should.have.property('results');
                 res.body.results.should.be.a('array');
+                userList = res.body.results;
+
+                if(userList.length > 1){
+                    for(var i = 0; i < userList.length; i++){
+                        if(userList[i].name == 'TestUser'){
+                            userGet = userList[i];
+                        }
+                    }
+                } else {
+                    userGet = userList[0];
+                }
+                console.log('USER GET:', userGet);
                 done();
             });
     });
@@ -162,7 +196,7 @@ describe('/POST GET & PUT Suppliers', () => {
     it('it should update the TestSupplier', (done) => {
         let updateSupplier = {
             name: 'TestSupplier2',
-            email: 'testsupplier@supplier.com',
+            email: 'testsupplier@testsupplier.com',
             telephone: '217159952',
             address: 'New Street',
             city: 'Madrid',
@@ -459,8 +493,141 @@ describe('/DELETE TEST Supplier', () => {
 });
 
 /**********************************************************************************/
+//Request Email to RESET Password and then Reset Password
+/**********************************************************************************/
+describe('/POST forgot', () => {
+    it('it should send and e-mail to reset the password', (done) => {
+        let user = {
+            email: 'joaon_tavares@outlook.com'
+        };
+        chai.request(server)
+            .post('/api/forgot')
+            .send(user)
+            .end((err, res) => {
+                res.should.have.status(202);
+                res.body.should.be.a('object');
+                res.body.should.have.property('success').eql(true);
+                res.body.should.have.property('message');
+                res.body.should.have.property('tokenTemp');
+                tempToken = res.body.tokenTemp;
+                done();
+            });
+
+    });
+});
+
+describe('/POST forgot/token', () => {
+    it('it should reset the password', (done) => {
+        let user = {
+            password: '12345Test!12'
+        };
+        chai.request(server)
+            .post('/api/forgot/' + tempToken)
+            .send(user)
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a('object');
+                res.body.should.have.property('success').eql(true);
+                res.body.should.have.property('message');
+                done();
+            });
+
+    });
+});
+
+
+/**********************************************************************************/
+//SIGNIN with new Password
+/**********************************************************************************/
+describe('/POST signin', () => {
+    it('it should login a user and get the token', (done) => {
+        let user = {
+            email: 'joaon_tavares@outlook.com',
+            password: '12345Test!12'
+        };
+        chai.request(server)
+            .post('/api/signin')
+            .send(user)
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a('object');
+                res.body.should.have.property('success').eql(true);
+                res.body.should.have.property('token');
+                res.body.should.have.property('message').eql(`Enjoy your token`);
+                token = res.body.token;
+                done();
+            });
+
+    });
+});
+
+/**********************************************************************************/
+//Update user
+/**********************************************************************************/
+describe('/PUT user + user_id', () => {
+    it('it should update the user details', (done) => {
+        let user = {
+            email: 'joaon_tavares2@outlook.com',
+            name: 'TestUser2'
+        };
+        chai.request(server)
+            .put('/api/user/' + userGet._id)
+            .set('x-access-token', token)
+            .send(user)
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a('object');
+                res.body.should.have.property('success').eql(true);
+                res.body.should.have.property('message').eql(`User ${user.name} updated!\n`);
+                done();
+            });
+
+    });
+});
+
+/**********************************************************************************/
+//Change Password
+/**********************************************************************************/
+describe('/PUT user Reset', () => {
+    it('it should change user password', (done) => {
+        let user = {
+            new_password: '12345Test!13',
+            old_password: '12345Test!12'
+        };
+        chai.request(server)
+            .put('/api/user/' + userGet._id + '/reset')
+            .set('x-access-token', token)
+            .send(user)
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a('object');
+                res.body.should.have.property('success').eql(true);
+                res.body.should.have.property('message').eql(`Password changed successfully!\n`);
+                done();
+            });
+
+    });
+});
+
+/**********************************************************************************/
 //DELETE TEST user
 /**********************************************************************************/
+describe('/DELETE User with tempToken', () => {
+    it('it should not delete the user. TempToken has no permissions', (done) => {
+        chai.request(server)
+            .delete('/api/user')
+            .set('x-access-token', tempToken)
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a('object');
+                res.body.should.have.property('success');
+                res.body.should.have.property('success').eql(false);
+                res.body.should.have.property('message').eql(`Failed to authenticate token!`);
+                done();
+            });
+    });
+});
+
 describe('/DELETE User', () => {
     it('it should delete the user created for tests', (done) => {
         chai.request(server)
@@ -476,3 +643,4 @@ describe('/DELETE User', () => {
             });
     });
 });
+
